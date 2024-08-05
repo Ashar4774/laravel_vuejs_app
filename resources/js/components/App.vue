@@ -15,9 +15,10 @@
                         </li>
                     </ul>
                     <form class="d-flex" role="search">
-                        <router-link to="/dashboard" class="btn btn-outline-success">Dashboard</router-link>&nbsp;
-                        <router-link to="/login" class="btn btn-outline-primary">login</router-link>&nbsp;
-                        <router-link to="/register" class="btn btn-outline-info">Register</router-link>
+                        <router-link to="/dashboard" v-if="isAuthenticated == true" class="btn btn-outline-success">Dashboard</router-link>&nbsp;
+                        <router-link @click="logout" v-if="isAuthenticated == true" class="btn btn-outline-danger">Logout</router-link>&nbsp;
+                        <router-link to="/login" v-if="isAuthenticated == false" class="btn btn-outline-primary">login</router-link>&nbsp;
+                        <router-link to="/register" v-if="isAuthenticated == false" class="btn btn-outline-info">Register</router-link>
                     </form>
                 </div>
             </div>
@@ -25,3 +26,51 @@
     </div>
     <router-view></router-view>
 </template>
+<script>
+    export default {
+
+        mounted(){
+            if(this.authToken){
+                window.axios.defaults.headers.common['Authorization'] = `Bearer ${this.authToken}`;
+            }
+        },
+
+        methods: {
+            logout(){
+                // logout API call
+                axios.post('api/logout')
+                .then(response => {
+                    console.log(response.data);
+                }).catch(error =>{
+
+                })
+
+                const status = false;
+                const token = '';
+
+                this.$store.dispatch('UpdateAuthStatus', status);
+
+                this.$store.dispatch('getAuthToken', token);
+
+                this.$router.push({
+                    name: 'login'
+                });
+            }
+        },
+
+        computed: {
+            // 1st method
+            // isAuthenticated(){
+            //     return this.$store.state.isAuthenticated
+            // }
+
+            isAuthenticated(){
+                return this.$store.getters.authStatus
+            },
+
+            authToken(){
+                return this.$store.state.token
+            }
+        }
+    }
+</script>

@@ -8,9 +8,9 @@
                     </div>
                     <div class="card-body">
                         <ul v-for="error in errors">
-                            <li class="text-danger">
+                            <p class="text-danger">
                                 {{ error }}
-                            </li>
+                            </p>
                         </ul>
                         <form @submit.prevent="login">
                             <div class="mb-3">
@@ -41,14 +41,32 @@ export default {
 
     methods: {
         login() {
-            axios.post('api/login', {
-                email: this.email,
-                password: this.password
-            }).then(response => {
-                this.clearErrorMessage()
-            }).catch(error => {
-                this.errors = Object.values(error.response.data.errors).flat()
-            })
+            axios.get('/sanctum/csrf-cookie').then(response => {
+                axios.post('api/login', {
+                    email: this.email,
+                    password: this.password
+                }).then(response => {
+
+                    // dispatch authentication
+                    const status = true;
+                    const token = response.data.token
+
+                    this.$store.dispatch('checkAuthStatus', status)
+
+                    this.$store.dispatch('setAuthToken', token)
+
+                    this.$router.push({
+                        name: 'dashboard'
+                    });
+                }).catch(error => {
+                    console.log(error.response.data)
+                    if(error.response.status == 422){
+                        this.errors = Object.values(error.response.data.errors).flat()
+                    } else {
+                        this.errors = Object.values([error.response.data.errors]).flat()
+                    }
+                })
+            });
         },
 
         clearErrorMessage() {
