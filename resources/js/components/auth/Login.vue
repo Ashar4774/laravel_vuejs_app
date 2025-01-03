@@ -50,6 +50,9 @@ export default {
                     // dispatch authentication
                     const status = true;
                     const token = response.data.token
+                    if(this.authToken){
+                        window.axios.defaults.headers.common['Authorization'] = `Bearer ${this.authToken}`;
+                    }
 
                     this.$store.dispatch('checkAuthStatus', status)
 
