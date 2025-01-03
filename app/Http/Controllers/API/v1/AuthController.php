@@ -56,12 +56,24 @@ class AuthController extends Controller
         try{
             $auth = Auth::check() ? true : false;
             return response()->json([
-                'authentication' => $auth
+                'status' => $auth
             ], 200);
         } catch(Exception $e){
             return response()->json([
                 'message' => 'Result not found'
             ], 404);
         }
+    }
+
+    public function logout(Request $request){
+//        $user = $request->user();
+//
+//        $user->tokens()->delete();
+//
+//        Auth::logout();
+
+        return response()->json([
+            'message' => 'User logged in successfully'
+        ], 201);
     }
 }

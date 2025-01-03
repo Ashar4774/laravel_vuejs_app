@@ -7,6 +7,9 @@ export default createStore ({
     },
 
     mutations: {
+        updateAuthenticationStatus(state, status){
+            state.isAuthenticated = status;
+        },
         UpdateAuthStatus (state, status) {
             state.isAuthenticated = status
         },
@@ -18,10 +21,25 @@ export default createStore ({
             } else {
                 localStorage.removeItem('token');
             }
+        },
+
+        changeAuthentication(state){
+            state.token = false;
+            state.isAuthenticated = false;
         }
     },
 
     actions: {
+        checkUserAuthentication({commit}){
+            axios.get('api/checkAuthStatus')
+                .then(response => {
+                    commit('updateAuthenticationStatus', response.data.status)
+                })
+                .catch(error => {
+                    console.error(error);
+                })
+        },
+
         checkAuthStatus( {commit}, status){
             // url:auth/checkAuthStatus
                 commit('UpdateAuthStatus', status)
@@ -30,6 +48,12 @@ export default createStore ({
 
         setAuthToken ( {commit}, token ){
             commit('getAuthToken', token)
+        },
+
+        logout({commit}){
+            commit('changeAuthentication')
+            localStorage.removeItem('token')
+            delete axios.defaults.headers.common['Authorization']
         }
     },
 

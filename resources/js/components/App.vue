@@ -16,7 +16,7 @@
                     </ul>
                     <form class="d-flex" role="search">
                         <router-link to="/dashboard" v-if="isAuthenticated == true" class="btn btn-outline-success">Dashboard</router-link>&nbsp;
-                        <router-link @click="logout" v-if="isAuthenticated == true" class="btn btn-outline-danger">Logout</router-link>&nbsp;
+                        <a @click="logout" v-if="isAuthenticated == true" class="btn btn-outline-danger">Logout</a>&nbsp;
                         <router-link to="/login" v-if="isAuthenticated == false" class="btn btn-outline-primary">login</router-link>&nbsp;
                         <router-link to="/register" v-if="isAuthenticated == false" class="btn btn-outline-info">Register</router-link>
                     </form>
@@ -27,12 +27,12 @@
     <router-view></router-view>
 </template>
 <script>
+
+    import axios from '../axios.js';
     export default {
 
         mounted(){
-            if(this.authToken){
-                window.axios.defaults.headers.common['Authorization'] = `Bearer ${this.authToken}`;
-            }
+            this.$store.dispatch('checkUserAuthentication')
         },
 
         methods: {
@@ -41,20 +41,24 @@
                 axios.post('api/logout')
                 .then(response => {
                     console.log(response.data);
-                }).catch(error =>{
+                    this.$store.dispatch('logout');
 
+                    this.$router.push({
+                        name: 'login'
+                    });
+
+                }).catch(error =>{
+                    console.error(error);
                 })
 
-                const status = false;
-                const token = '';
+                // const status = false;
+                // const token = '';
+                //
+                // this.$store.dispatch('UpdateAuthStatus', status);
+                //
+                // this.$store.dispatch('getAuthToken', token);
 
-                this.$store.dispatch('UpdateAuthStatus', status);
 
-                this.$store.dispatch('getAuthToken', token);
-
-                this.$router.push({
-                    name: 'login'
-                });
             }
         },
 
